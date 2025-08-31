@@ -348,26 +348,6 @@
                     <button class="scroll-arrow scroll-right" onclick="scrollContent('kidsShowsGrid', 300)">❯</button>
                 </div>
             </section>
-            <section id="animation-movies" class="mb-8 movie-section">
-                <div class="px-4 sm:px-8">
-                    <h2 class="text-3xl font-bold text-white mb-6">Animation Movies</h2>
-                </div>
-                <div class="relative">
-                    <div id="animationMoviesGrid" class="movie-row scrollbar-hide px-4 sm:px-8"></div>
-                    <button class="scroll-arrow scroll-left" onclick="scrollContent('animationMoviesGrid', -300)">❮</button>
-                    <button class="scroll-arrow scroll-right" onclick="scrollContent('animationMoviesGrid', 300)">❯</button>
-                </div>
-            </section>
-            <section id="animation-series" class="mb-8 movie-section">
-                <div class="px-4 sm:px-8">
-                    <h2 class="text-3xl font-bold text-white mb-6">Animation Series</h2>
-                </div>
-                <div class="relative">
-                    <div id="animationSeriesGrid" class="movie-row scrollbar-hide px-4 sm:px-8"></div>
-                    <button class="scroll-arrow scroll-left" onclick="scrollContent('animationSeriesGrid', -300)">❮</button>
-                    <button class="scroll-arrow scroll-right" onclick="scrollContent('animationSeriesGrid', 300)">❯</button>
-                </div>
-            </section>
             <section id="popular-languages" class="mb-8 movie-section">
                 <div class="px-4 sm:px-8">
                     <h2 class="text-3xl font-bold text-white mb-6">Popular Languages</h2>
@@ -492,7 +472,7 @@
                             <label class="flex items-center space-x-2"><input type="checkbox" name="contentType" value="movie" checked class="rounded text-blue-600 focus:ring-blue-500"><span>Movies</span></label>
                             <label class="flex items-center space-x-2"><input type="checkbox" name="contentType" value="tv" class="rounded text-blue-600 focus:ring-blue-500"><span>Shows</span></label>
                             <label class="flex items-center space-x-2"><input type="checkbox" name="contentType" value="animation" class="rounded text-blue-600 focus:ring-blue-500"><span>Animation</span></label>
-                            <label class="flex items-center space-x-2"><input type="checkbox" name="contentType" value="kids" class="rounded text-blue-600 focus:ring-blue-500"><span>Kids</span></label>
+                            <label class="flex items-center space-x-2"><input type="checkbox" name="contentType" value="kids" class="rounded text-blue-600 focus:ring-2 focus:ring-blue-500"><span>Kids</span></label>
                         </div>
                         <div class="flex flex-col space-y-2 mt-4">
                             <label for="sortBy" class="text-white">Sort By:</label>
@@ -720,7 +700,7 @@
             const title = media.title || media.name;
             
             card.innerHTML = `<img src="${posterUrl}" alt="${title}" class="w-full h-60 sm:h-72 object-cover rounded-lg">`;
-            card.addEventListener('click', () => showMovieDetails(media.id, isTV, media));
+            card.addEventListener('click', () => showMovieDetails(media.id, isTV));
             container.appendChild(card);
             displayedMediaIds.add(media.id);
         };
@@ -1009,6 +989,61 @@
                 container.appendChild(card);
             });
         };
+
+        // Combines two fetches into one vertical infinite scroll
+        const setupCombinedVerticalScroll = (containerId, urlPrefix1, urlPrefix2) => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            let page = 1;
+            let isLoading = false;
+            let hasMore1 = true;
+            let hasMore2 = true;
+            let observer;
+
+            const fetchAndDisplay = async () => {
+                if (isLoading || (!hasMore1 && !hasMore2)) return;
+                isLoading = true;
+
+                const [data1, data2] = await Promise.all([
+                    hasMore1 ? fetchData(`${urlPrefix1}&page=${page}&include_adult=false`) : null,
+                    hasMore2 ? fetchData(`${urlPrefix2}&page=${page}&include_adult=false`) : null
+                ]);
+
+                if (data1 && data1.results && data1.results.length > 0) {
+                    data1.results.filter(media => filterMedia(media, 'movie')).forEach(media => {
+                        addMediaCard(media, container, false);
+                    });
+                } else {
+                    hasMore1 = false;
+                }
+
+                if (data2 && data2.results && data2.results.length > 0) {
+                    data2.results.filter(media => filterMedia(media, 'tv')).forEach(media => {
+                        addMediaCard(media, container, true);
+                    });
+                } else {
+                    hasMore2 = false;
+                }
+
+                if (!hasMore1 && !hasMore2) {
+                    if (observer) observer.disconnect();
+                } else {
+                    page++;
+                }
+                isLoading = false;
+            };
+
+            const sentinel = document.createElement('div');
+            sentinel.className = 'w-full h-1';
+            container.appendChild(sentinel);
+            observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting) {
+                    fetchAndDisplay();
+                }
+            });
+            observer.observe(sentinel);
+            fetchAndDisplay();
+        };
         
         // Event listener for the search input
         searchInput.addEventListener('input', () => {
@@ -1047,11 +1082,14 @@
         });
         animationLink.addEventListener('click', (e) => {
             e.preventDefault();
-            document.querySelector('#searchResultsSection h2').textContent = "All Animation Content";
+            document.querySelector('#searchResultsSection h2').textContent = "Animation";
             hideAllSections();
             searchResultsSection.classList.remove('hidden');
             displayedMediaIds.clear();
-            setupVerticalInfiniteScroll('searchResultsGrid', `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEYS.TMDB}&with_genres=16&sort_by=popularity.desc&include_adult=false`);
+            setupCombinedVerticalScroll('searchResultsGrid', 
+                `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEYS.TMDB}&with_genres=16&sort_by=popularity.desc`,
+                `${TMDB_BASE_URL}/discover/tv?api_key=${API_KEYS.TMDB}&with_genres=16&sort_by=popularity.desc`
+            );
         });
         kidsLink.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1059,7 +1097,10 @@
             hideAllSections();
             searchResultsSection.classList.remove('hidden');
             displayedMediaIds.clear();
-            setupVerticalInfiniteScroll('searchResultsGrid', `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEYS.TMDB}&with_genres=10751,16&sort_by=popularity.desc&include_adult=false`);
+            setupCombinedVerticalScroll('searchResultsGrid',
+                `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEYS.TMDB}&with_genres=10751,16&sort_by=popularity.desc`,
+                `${TMDB_BASE_URL}/discover/tv?api_key=${API_KEYS.TMDB}&with_genres=10751,16&sort_by=popularity.desc`
+            );
         });
 
         // Recommendation Modal Event Listeners
@@ -1098,27 +1139,56 @@
             if (selectedLanguages.length > 0) commonParams['with_original_language'] = selectedLanguages.join('|');
             if (selectedStudios.length > 0) commonParams['with_companies'] = selectedStudios.join(',');
             
-            // Handle different content types for recommendations
             const mediaTypes = [];
             if (selectedContentType.includes('movie')) mediaTypes.push('movie');
             if (selectedContentType.includes('tv')) mediaTypes.push('tv');
-            if (selectedContentType.includes('animation') || selectedContentType.includes('kids')) mediaTypes.push('movie');
+            if (selectedContentType.includes('animation')) mediaTypes.push('animation');
+            if (selectedContentType.includes('kids')) mediaTypes.push('kids');
             
             document.querySelector('#searchResultsSection h2').textContent = "Recommendations";
             
             if (mediaTypes.length > 0) {
-                mediaTypes.forEach(mediaType => {
-                    let urlPrefix;
-                    const typeParams = { ...commonParams };
-                    if (mediaType === 'tv') {
-                        // TV shows generally need more votes to be considered "top rated"
-                        urlPrefix = `${TMDB_BASE_URL}/discover/tv?${new URLSearchParams(typeParams).toString()}`;
-                        setupVerticalInfiniteScroll('searchResultsGrid', urlPrefix, true);
-                    } else {
-                        urlPrefix = `${TMDB_BASE_URL}/discover/movie?${new URLSearchParams(typeParams).toString()}`;
-                        setupVerticalInfiniteScroll('searchResultsGrid', urlPrefix, false);
-                    }
-                });
+                const hasMovies = mediaTypes.includes('movie') || mediaTypes.includes('animation') || mediaTypes.includes('kids');
+                const hasTv = mediaTypes.includes('tv');
+                
+                const movieParams = { ...commonParams };
+                const genresForMovies = [];
+                if (mediaTypes.includes('animation') || mediaTypes.includes('kids')) {
+                    if (mediaTypes.includes('animation')) genresForMovies.push(16);
+                    if (mediaTypes.includes('kids')) genresForMovies.push(10751);
+                }
+                if (selectedGenres.length > 0) {
+                    movieParams['with_genres'] = selectedGenres.concat(genresForMovies).join(',');
+                } else if (genresForMovies.length > 0) {
+                    movieParams['with_genres'] = genresForMovies.join(',');
+                }
+                
+                const tvParams = { ...commonParams };
+                const genresForTv = [];
+                if (mediaTypes.includes('animation') || mediaTypes.includes('kids')) {
+                    if (mediaTypes.includes('animation')) genresForTv.push(16);
+                    if (mediaTypes.includes('kids')) genresForTv.push(10751);
+                }
+                if (selectedGenres.length > 0) {
+                    tvParams['with_genres'] = selectedGenres.concat(genresForTv).join(',');
+                } else if (genresForTv.length > 0) {
+                    tvParams['with_genres'] = genresForTv.join(',');
+                }
+
+                searchResultsGrid.innerHTML = '';
+                if (hasMovies && hasTv) {
+                    setupCombinedVerticalScroll(
+                        'searchResultsGrid',
+                        `${TMDB_BASE_URL}/discover/movie?${new URLSearchParams(movieParams).toString()}`,
+                        `${TMDB_BASE_URL}/discover/tv?${new URLSearchParams(tvParams).toString()}`
+                    );
+                } else if (hasMovies) {
+                    setupVerticalInfiniteScroll('searchResultsGrid', `${TMDB_BASE_URL}/discover/movie?${new URLSearchParams(movieParams).toString()}`, false);
+                } else if (hasTv) {
+                    setupVerticalInfiniteScroll('searchResultsGrid', `${TMDB_BASE_URL}/discover/tv?${new URLSearchParams(tvParams).toString()}`, true);
+                } else {
+                    searchResultsGrid.innerHTML = `<p class="text-center w-full">Please select at least one content type to generate recommendations.</p>`;
+                }
             } else {
                 searchResultsGrid.innerHTML = `<p class="text-center w-full">Please select at least one content type to generate recommendations.</p>`;
             }
@@ -1187,12 +1257,6 @@
             // Kids Shows: Fetching Kids shows, with infinite scroll
             setupInfiniteScroll('kidsShowsGrid', `${TMDB_BASE_URL}/discover/tv?api_key=${API_KEYS.TMDB}&with_genres=10751,16&sort_by=popularity.desc`, true);
             
-            // Animation Movies: Fetching animation movies, with infinite scroll
-            setupInfiniteScroll('animationMoviesGrid', `${TMDB_BASE_URL}/discover/movie?api_key=${API_KEYS.TMDB}&with_genres=16&sort_by=vote_count.desc`);
-            
-            // Animation Series: Fetching animation series, with infinite scroll
-            setupInfiniteScroll('animationSeriesGrid', `${TMDB_BASE_URL}/discover/tv?api_key=${API_KEYS.TMDB}&with_genres=16&sort_by=popularity.desc`, true);
-            
             // Popular Languages: Setting up sections for popular languages
             setupLanguageSection();
             
@@ -1229,4 +1293,3 @@
     </script>
 </body>
 </html>
-
