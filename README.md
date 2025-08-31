@@ -6,10 +6,9 @@ Cineverse is a dynamic and responsive web application for discovering movies and
 
 ---
 # Overview 
-<center><img width="1889" height="910" alt="image" src="https://github.com/user-attachments/assets/54175df0-82cd-4f04-8c6f-d0313a2c365b" /><img width="620" height="688" alt="image" src="https://github.com/user-attachments/assets/472811c7-e20e-4c8c-8730-fb97815e4885" />
-
+<center><img width="1889" height="910" alt="image" src="https://github.com/user-attachments/assets/54175df0-82cd-4f04-8c6f-d0313a2c365b" /></center>
+<center><img width="720" height="825" alt="image" src="https://github.com/user-attachments/assets/89747eb0-cee2-4359-af7b-0308d51de504" />
 </center>
-
 ---
 ### Tools & Technologies
 
