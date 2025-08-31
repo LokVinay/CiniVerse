@@ -1,14 +1,14 @@
 # Cineverse 🎬
 
-### Project Objective
+### Project Overview
 
 Cineverse is a dynamic and responsive web application for discovering movies and TV shows. The primary objective is to create a seamless user experience for browsing content, searching for specific titles, and receiving personalized recommendations. The application leverages modern web technologies to provide a fast, intuitive, and visually appealing interface that functions as a single-page application.
 
----
-# Overview 
-<center><img width="1889" height="910" alt="image" src="https://github.com/user-attachments/assets/54175df0-82cd-4f04-8c6f-d0313a2c365b" /></center>
-<center><img width="720" height="825" alt="image" src="https://github.com/user-attachments/assets/89747eb0-cee2-4359-af7b-0308d51de504" />
-</center>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/54175df0-82cd-4f04-8c6f-d0313a2c365b" alt="Cineverse UI showing the main homepage with movie rows" width="48%">
+  <img src="https://github.com/user-attachments/assets/89747eb0-cee2-4359-af7b-0308d51de504" alt="Cineverse UI showing a detailed movie information modal" width="48%">
+</p>
+
 ---
 ### Tools & Technologies
 
