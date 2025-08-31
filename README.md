@@ -7,7 +7,8 @@ Cineverse is a dynamic and responsive web application for discovering movies and
 <p align="center">
   <img width="964" height="895" alt="image" src="https://github.com/user-attachments/assets/c27d53d1-c251-44f6-ab95-d99219c70408" />
 
-  <img width="720" height="825" alt="Screenshot 2025-08-31 145121" src="https://github.com/user-attachments/assets/5f94a975-d317-4e1d-bb88-65262ee62116" />
+  <img width="673" height="723" alt="image" src="https://github.com/user-attachments/assets/6e1a72ef-7b97-454b-8919-ff1b2e12eec5" />
+
 
 
 </p>
