@@ -5,8 +5,10 @@
 Cineverse is a dynamic and responsive web application for discovering movies and TV shows. The primary objective is to create a seamless user experience for browsing content, searching for specific titles, and receiving personalized recommendations. The application leverages modern web technologies to provide a fast, intuitive, and visually appealing interface that functions as a single-page application.
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/54175df0-82cd-4f04-8c6f-d0313a2c365b" alt="Cineverse UI showing the main homepage with movie rows" width="48%" style="height: auto; max-height: 350px; object-fit: contain; margin-right: 1%;">
-  <img src="https://github.com/user-attachments/assets/89747eb0-cee2-4359-af7b-0308d51de504" alt="Cineverse UI showing a detailed movie information modal" width="48%" style="height: auto; max-height: 350px; object-fit: contain; margin-left: 1%;">
+  <img width="856" height="893" alt="image" src="https://github.com/user-attachments/assets/4ee05f0d-badb-4943-b21a-4ed42381d262" />
+  <img width="720" height="825" alt="Screenshot 2025-08-31 145121" src="https://github.com/user-attachments/assets/5f94a975-d317-4e1d-bb88-65262ee62116" />
+
+
 </p>
 
 ---
